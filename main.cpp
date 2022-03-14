@@ -18,7 +18,7 @@ struct
 } programOptions;
 
 
-void exitWithMsg(int err, std::string message)
+void exitWithMsg(int err, const std::string &message)
 {
     std::cout << message << std::endl;
     exit(err);
@@ -51,6 +51,8 @@ void sinkFound(pa_context* context, const pa_sink_info* info, int eol, void* use
 
     if(eol > 0)
     {
+        if(fullNames->size() != programOptions.names.size())
+            exitWithMsg(-1, "Some of specified devices aren't found");
         combineSinks(context, *fullNames);
         delete fullNames;
         return;
@@ -91,6 +93,8 @@ int main(int argc, char *argv[])
     const auto usageString = "Usage: " + std::string(argv[0]) + " sink_1 sink_2 ... sink_n [-o \"other options\"]";
     if(argc <= 1)
         exitWithMsg(-1, usageString);
+    if(strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)
+        exitWithMsg(0, usageString);
 
 
     for(int i = 1; i < argc; ++i)
